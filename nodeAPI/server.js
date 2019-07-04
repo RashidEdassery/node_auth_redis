@@ -52,9 +52,14 @@ app.get("*", function(req, res) {
 });
 
 io.on("connection", function(socket) {
-  console.log("a user connected");
-  socket.on("disconnect", function() {
-    console.log("user disconnected");
+  socket.on('userJoined', function(user){
+    console.log('User joined: ', JSON.stringify(user));
+    client.set(user.email, JSON.stringify(user));
+    socket.emit('userJoined', user)
+  });
+  socket.on("disconnect", function(socket) {
+    console.log("user disconnected", socket.id);
+    io.emit('userLeft')
   });
 });
 

@@ -101,7 +101,13 @@ module.exports = function(router) {
             res.json({
               success: true,
               message: "Login Successfull....",
-              token: token
+              data: {
+                user: {
+                  name: user.name,
+                  email: user.email
+                },
+                token: token
+              },              
             });
           }
         }

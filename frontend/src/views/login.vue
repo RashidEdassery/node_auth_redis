@@ -130,10 +130,10 @@ export default {
         .post("/login", obj)
         .then(function(response) {
           console.log(JSON.stringify(response.data));
-          let userData = response.data;
+          let userData = response.data.data;
           if (userData.token) {
-            localForage.setItem('accessToken', userData.token).then(function () {
-              return localForage.getItem('accessToken');
+            localForage.setItem('userData', userData).then(function () {
+              return localForage.getItem('userData');
             }).then(function (value) {
               _this.$router.push({ name: 'sessions' })
             }).catch(function (err) {

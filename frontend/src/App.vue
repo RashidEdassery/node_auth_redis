@@ -7,7 +7,6 @@
 </template>
 
 <script>
-import localForage from 'localforage'
 export default {
   name: 'App',  
   methods: {

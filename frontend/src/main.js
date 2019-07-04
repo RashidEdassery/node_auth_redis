@@ -21,9 +21,9 @@ router.beforeEach((to, from, next) => {
       next();
     } else {
       localForage
-        .getItem("accessToken")
+        .getItem("userData")
         .then(function(value) {
-          _token = value || "";
+          _token = value.token || "";
           if (_token) {
             next();
           } else {
@@ -41,9 +41,9 @@ router.beforeEach((to, from, next) => {
         router.push({ name: "sessions" });
       } else {
         localForage
-          .getItem("accessToken")
+          .getItem("userData")
           .then(function(value) {
-            _token = value || "";
+            _token = value.token || "";
             if (_token) {
               router.push({ name: "sessions" });
             } else {
