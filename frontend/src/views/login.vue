@@ -100,8 +100,8 @@ export default {
   data() {
     return {
       valid: true,
-      email: "some@example.com",
-      password: "xzsawq21"
+      email: "",
+      password: ""
     };
   },
   computed: {

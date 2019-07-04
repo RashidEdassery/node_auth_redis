@@ -104,9 +104,9 @@ export default {
   data () {
     return {      
       valid: true,
-      name: 'rashi',
-      email: 'some@example.com',
-      password: 'xzsawq21'
+      name: '',
+      email: '',
+      password: ''
     }
   },
   computed: {
@@ -136,10 +136,15 @@ export default {
   },
   methods: {
     register(obj){
+      let _this = this;
         this.$http
         .post("/register", obj)
         .then(function(response) {
-          console.log(response);
+          if (response.data.success) {
+            _this.$router.push({ name: 'login' })
+          } else{
+            alert("invalid inputs");
+          }          
         })
         .catch(function(error) {
           console.log(error);

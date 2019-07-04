@@ -9,11 +9,6 @@ var nameValidator = [
     validator: 'isLength',
     arguments: [3, 30],
     message: 'Name should be between {ARGS[0]} and {ARGS[1]} characters'
-  }),
-  validate({
-    validator: 'matches',
-    arguments: /^[a-zA-Z]+$/,
-    message: 'Name Should be at least 3 characters long and must not contain any symbols or numbers'
   })
 ];
 

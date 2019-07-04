@@ -4,6 +4,7 @@ var app = express();
 var http = require("http").createServer(app);
 var io = require("socket.io")(http);
 var morgan = require("morgan");
+var async = require('async');
 var bodyParser = require("body-parser");
 var router = express.Router();
 var appRoutes = require("./app/routes/api")(router);
@@ -13,21 +14,21 @@ const redis = require("redis");
 const client = redis.createClient();
 app.use(morgan("dev"));
 
-app.use(function (req, res, next) {
-  var allowedOrigins = ['http://localhost:8080']
-  var origin = req.headers.origin
-  console.log(origin)
+app.use(function(req, res, next) {
+  var allowedOrigins = ["http://localhost:8080"];
+  var origin = req.headers.origin;
+  console.log(origin);
   if (allowedOrigins.indexOf(origin) > -1) {
-    res.header('Access-Control-Allow-Origin', origin)
+    res.header("Access-Control-Allow-Origin", origin);
   }
-  res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, HEAD')
-  res.header('Access-Control-Allow-Credentials', 'true')
+  res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, HEAD");
+  res.header("Access-Control-Allow-Credentials", "true");
   res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, x-access-token, Content-Type, Accept-Ranges'
-  )
-  next()
-})
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, x-access-token, Content-Type, Accept-Ranges"
+  );
+  next();
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -52,14 +53,34 @@ app.get("*", function(req, res) {
 });
 
 io.on("connection", function(socket) {
-  socket.on('userJoined', function(user){
-    console.log('User joined: ', JSON.stringify(user));
-    client.set(user.email, JSON.stringify(user));
-    socket.emit('userJoined', user)
+  client.keys("*", function(err, keys) {
+    if (err) return console.log(err);
+    if(keys){
+      async.map(keys, function(key, cb) {
+         client.get(key, function (error, value) {
+              if (error) return cb(error);
+              let _value = JSON.parse(value).user;
+              var user = {};
+              user['name']= _value.name;
+              user['email']= _value.email;
+              cb(null, user);
+          }); 
+      }, function (error, results) {
+         if (error) return console.log(error);
+         console.log(results);
+         socket.emit("onlineUsers", results);
+      });
+  }
+  }); 
+  socket.on("userJoined", function(userData) {
+    console.log(socket.id);
+    console.log("User joined: ", JSON.stringify(userData.user));
+    client.set(socket.id, JSON.stringify(userData));
+    socket.emit("newUser", userData.user);   
   });
-  socket.on("disconnect", function(socket) {
+  socket.on("disconnect", function() {
     console.log("user disconnected", socket.id);
-    io.emit('userLeft')
+    client.del(socket.id);
   });
 });
 

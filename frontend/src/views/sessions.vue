@@ -26,16 +26,12 @@
           </v-toolbar>
 
           <v-list two-line>
-            <template v-for="(item, index) in onlineUsers">
-
-              <v-divider :key="index"></v-divider>
-
-              <v-list-tile :key="index">
+              <v-list-tile v-for="(item, index) in onlineUsers" :key="index">
                 <v-list-tile-content>
                   <v-list-tile-title v-html="item.name"></v-list-tile-title>
                 </v-list-tile-content>
-              </v-list-tile>
-            </template>
+                <v-divider></v-divider>
+              </v-list-tile>            
           </v-list>
         </v-card>
       </v-flex>
@@ -75,16 +71,20 @@ export default {
   mounted() {
     let _this = this;
     const socket = io("http://localhost:3000");
-    socket.on("userJoined", function(userData) {
-      console.log(JSON.stringify(_this.onlineUsers));
+    socket.on("newUser", function(userData) {
+      console.log(JSON.stringify(userData));
       let user = findObjectByKey(
         _this.onlineUsers,
         "email",
-        userData.user.email
+        userData.email
       );
       if (!user) {
-        _this.onlineUsers.push(userData.user);
+        _this.onlineUsers.push(userData);
       }
+    });
+    socket.on("onlineUsers", function(users) {
+      console.log(JSON.stringify(users));
+      _this.onlineUsers = users;
     });
     localForage
       .getItem("userData")
