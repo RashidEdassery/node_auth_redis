@@ -28,15 +28,9 @@
           <v-list two-line>
             <template v-for="(item, index) in onlineUsers">
 
-              <v-divider
-                :key="index"
-              ></v-divider>
+              <v-divider :key="index"></v-divider>
 
               <v-list-tile :key="index">
-                <v-list-tile-avatar>
-                  <v-icon>user</v-icon>
-                </v-list-tile-avatar>
-
                 <v-list-tile-content>
                   <v-list-tile-title v-html="item.name"></v-list-tile-title>
                 </v-list-tile-content>
@@ -51,6 +45,14 @@
 
 <script>
 import localForage from "localforage";
+var findObjectByKey = function(objArray, key, value) {
+  if (!objArray || !objArray.length) return false;
+  for (var i = 0; i < objArray.length; i++) {
+    if (objArray[i][key] === value) {
+      return objArray[i];
+    }
+  }
+};
 export default {
   data() {
     return {
@@ -68,23 +70,20 @@ export default {
         .catch(function(err) {
           console.log(err);
         });
-    },
-    findObjectByKey(objArray, key, value) {
-      if (!objArray.length) return false;
-      for (var i = 0; i < objArray.length; i++) {
-        if (objArray[i][key] === value) {
-          return objArray[i];
-        }
-      }
     }
   },
   mounted() {
+    let _this = this;
     const socket = io("http://localhost:3000");
     socket.on("userJoined", function(userData) {
-      // console.log(JSON.stringify(userData.user));
-      let user = this.findObjectByKey(this.onlineUsers, 'email', userData.user.email);
+      console.log(JSON.stringify(_this.onlineUsers));
+      let user = findObjectByKey(
+        _this.onlineUsers,
+        "email",
+        userData.user.email
+      );
       if (!user) {
-        this.onlineUsers.push(userData.user);
+        _this.onlineUsers.push(userData.user);
       }
     });
     localForage
